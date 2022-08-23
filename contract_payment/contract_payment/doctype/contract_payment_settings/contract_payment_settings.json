@@ -10,7 +10,9 @@
   "submit_p_invoice",
   "stop_create_p_invoice",
   "stop_create_s_invoice",
-  "stop_salary_slip"
+  "stop_salary_slip",
+  "global_settings_section",
+  "item_group"
  ],
  "fields": [
   {
@@ -47,12 +49,24 @@
    "fieldname": "stop_salary_slip",
    "fieldtype": "Check",
    "label": "Stop Salary Slip for employee if not select contract"
+  },
+  {
+   "fieldname": "global_settings_section",
+   "fieldtype": "Section Break",
+   "label": "Global Settings"
+  },
+  {
+   "default": "contracts",
+   "fieldname": "item_group",
+   "fieldtype": "Link",
+   "label": "Item Group",
+   "options": "Item Group"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-01-21 19:21:41.999759",
+ "modified": "2022-08-22 19:57:47.667500",
  "modified_by": "Administrator",
  "module": "Contract Payment",
  "name": "Contract Payment Settings",

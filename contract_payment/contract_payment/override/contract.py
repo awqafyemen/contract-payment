@@ -30,6 +30,11 @@ class CustomContract(Contract):
     """
     this class override for contract
     """
+    def save(self, *args, **kwargs):
+        self.calculate_dues()
+        # do_something()
+        super().save(*args, **kwargs) # call the base save method
+        # do_something_else()
 
     @frappe.whitelist()
     def calculate_dues(self):
@@ -43,8 +48,16 @@ class CustomContract(Contract):
             return
         if self.dues_period_ == "Monthly":
             self.creat_dues_month()
-        else:
+        elif self.dues_period_ == "Yearly":
             self.creat_dues_yearly()
+        else:
+            self.append("contract_dues", {
+                "date_dues": self.make_first_dues_on,
+                "amount": self.amount,
+            })
+            pass
+
+            
 
     def creat_dues_month(self):
         """
@@ -118,6 +131,10 @@ class CustomContract(Contract):
 
     @frappe.whitelist()
     def create_sales_invoice(self, today=False):
+        invoice_exist = frappe.db.exists('Sales Invoice', {'contract': self.name})
+        if invoice_exist:
+            link = get_link_to_form("Sales Invoice", invoice_exist)
+            frappe.throw(_("Invoice has been created before {0}".format(link)))
         contract = frappe.get_doc("Contract Type", self.contract_type)
         item = frappe.get_doc("Item", contract.item)
         income_account = frappe.db.get_value(

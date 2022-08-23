@@ -15,7 +15,8 @@ class ContractType(Document):
 					'doctype': 'Item',
 					'item_name': self.name1,
 					'item_code': self.name1,
-					'item_group': self.get_contract_item_group(),
+					# 'item_group': self.get_contract_item_group(),
+					'item_group': frappe.db.get_single_value("Contract Payment Settings", "item_group"),
 					'is_purchase_item': True,
 					'is_sales_item': True,
 					'is_stock_item': False,
@@ -27,11 +28,12 @@ class ContractType(Document):
 		frappe.msgprint(_('item created successfuly'))
 
 
-	def get_contract_item_group(self):
-		"""
-		this method for get contract item group
-		"""
-		item_group = frappe.get_list('Item Group', filters={'is_contract_group': True})
-		if item_group:
-			return item_group[0].name
-		return None 
+	# def get_contract_item_group(self):
+	# 	"""
+	# 	this method for get contract item group
+	# 	"""
+	# 	item_group = frappe.get_list('Item Group', filters={'is_contract_group': True})
+	# 	if item_group:
+	# 		return item_group[0].name
+	# 	return None 
+	# or return "contracts"

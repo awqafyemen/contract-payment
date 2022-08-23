@@ -45,7 +45,8 @@
    "fieldname": "party_name",
    "fieldtype": "Dynamic Link",
    "label": "Party Name",
-   "options": "party_type"
+   "options": "party_type",
+   "read_only": 1
   },
   {
    "allow_in_quick_entry": 1,
@@ -85,6 +86,7 @@
    "read_only": 1
   },
   {
+   "allow_on_submit": 1,
    "fieldname": "paid_amount",
    "fieldtype": "Currency",
    "label": "Paid Amount"
@@ -93,7 +95,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2022-01-22 00:40:32.804224",
+ "modified": "2022-08-22 21:13:37.142538",
  "modified_by": "Administrator",
  "module": "Contract Payment",
  "name": "Contract Dues",
