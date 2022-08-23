@@ -14,3 +14,7 @@ def after_install():
                     })
 
     item_group.insert()
+
+    contract_payment_settings = frappe.get_doc("Contract Payment Settings")
+    contract_payment_settings.item_group = item_group.item_group_name
+    contract_payment_settings.save()

@@ -15,11 +15,10 @@ frappe.ui.form.on('Contract', {
 		
 	},
 	create_buttons: function(frm){
-		if(!frm.is_new() && frm.doc.contract_payment){
+		if(!frm.is_new() && frm.doc.contract_payment && frm.doc.docstatus!=1){
 			frm.add_custom_button(__('Calculate Benfites'), function(){
 				frm.events.calculate_benfites(frm);
 			},
-			
 			__("Actions"));
 		}
 		
@@ -37,7 +36,7 @@ frappe.ui.form.on('Contract', {
 	create_sale_invoice_button: function(frm){
 		if(!frm.is_new() && frm.doc.contract_payment && frm.doc.docstatus === 1){
 
-		if(frm.doc.party_type === 'Customer'){
+		if(frm.doc.party_type === 'Customer' && frm.doc.docstatus==1){
 			frm.add_custom_button(__('Create Sale Invoice'), function(){
 				frm.events.create_invoice(frm);
 			},
@@ -59,7 +58,7 @@ frappe.ui.form.on('Contract', {
 	create_purchase_invoice_button: function(frm){
 		if(!frm.is_new() && frm.doc.contract_payment && frm.doc.docstatus === 1){
 
-			if(frm.doc.party_type === 'Supplier'){
+			if(frm.doc.party_type === 'Supplier' && frm.doc.docstatus==1){
 				frm.add_custom_button(__('Create Purchase Invoice'), function(){
 					frm.events.create_purchase_invoice(frm);
 				},
