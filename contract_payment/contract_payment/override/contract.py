@@ -4,6 +4,7 @@ from frappe import _
 import datetime
 from dateutil import parser
 import calendar
+import erpnext
 
 from erpnext.payroll.doctype.payroll_entry.payroll_entry import (
     create_salary_slips_for_employees,
@@ -35,6 +36,12 @@ class CustomContract(Contract):
         # do_something()
         super().save(*args, **kwargs) # call the base save method
         # do_something_else()
+    
+    def on_submit(self):
+        invoice_exist = frappe.db.exists('Sales Invoice', {'contract': self.name, "docstatus": 1})
+        if not invoice_exist:
+            frappe.throw(_("Contract has not submitted Sales Invoice"))
+
 
     @frappe.whitelist()
     def calculate_dues(self):
@@ -130,7 +137,7 @@ class CustomContract(Contract):
         amount = self.get_employee_dues
 
     @frappe.whitelist()
-    def create_sales_invoice(self, today=False):
+    def create_sales_invoice(self, today=False, manual_creation=0):
         invoice_exist = frappe.db.exists('Sales Invoice', {'contract': self.name})
         if invoice_exist:
             link = get_link_to_form("Sales Invoice", invoice_exist)
@@ -141,38 +148,47 @@ class CustomContract(Contract):
             "Company", self.company, ["default_income_account"]
         )
         due = self.get_unpaid_dues(today_=today)
-        invoice = frappe.get_doc(
-            {
-                "doctype": "Sales Invoice",
-                "customer": self.party_name,
-                "due_date": due.date_dues,
-                "is_contract_payment_invoice": True,
-                "contract": self.name,
-                "company": self.company,
-            }
-        )
+        invoice = frappe.new_doc("Sales Invoice")
+        invoice.customer = self.party_name
+        invoice.due_date =  frappe.utils.today() if manual_creation==1 else due.date_dues 
+        invoice.is_contract_payment_invoice = True
+        invoice.contract = self.name
+        invoice.company = self.company
+
+
+        #     {
+        #         "doctype": "Sales Invoice",
+        #         "customer": self.party_name,
+        #         "due_date": due.date_dues,
+        #         "is_contract_payment_invoice": True,
+        #         "contract": self.name,
+        #         "company": self.company,
+        #     }
+        # )
         invoice.append(
             "items",
             {
                 "item": item,
                 "item_name": item.item_name,
                 "qty": 1,
-                "conversion_factor": 1,
                 "rate": due.amount,
                 "description": item.name,
                 "uom": item.stock_uom,
                 "income_account": income_account,
+                "conversion_factor": 1,
+                "cost_center": erpnext.get_default_cost_center(self.company)
             },
         )
-        invoice.insert()
-        submit_after_create = frappe.db.get_single_value(
-            "Contract Payment Settings", "submit_p_invoice"
-        )
-        if submit_after_create:
-            invoice.submit()
+        return invoice
+        # invoice.insert()
+        # submit_after_create = frappe.db.get_single_value(
+        #     "Contract Payment Settings", "submit_p_invoice"
+        # )
+        # if submit_after_create:
+        #     invoice.submit()
 
-        link = get_link_to_form("Sales Invoice", invoice.name)
-        frappe.msgprint(_("invoice created successfuly {0}".format(link)))
+        # link = get_link_to_form("Sales Invoice", invoice.name)
+        # frappe.msgprint(_("invoice created successfuly {0}".format(link)))
 
     @frappe.whitelist()
     def create_purchase_invoice(self, today=False):

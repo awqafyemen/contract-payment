@@ -34,9 +34,9 @@ frappe.ui.form.on('Contract', {
         frm.refresh()
     },
 	create_sale_invoice_button: function(frm){
-		if(!frm.is_new() && frm.doc.contract_payment && frm.doc.docstatus === 1){
+		if(!frm.is_new() && frm.doc.contract_payment){
 
-		if(frm.doc.party_type === 'Customer' && frm.doc.docstatus==1){
+		if(frm.doc.party_type === 'Customer' && frm.doc.docstatus!=1){
 			frm.add_custom_button(__('Create Sale Invoice'), function(){
 				frm.events.create_invoice(frm);
 			},
@@ -48,8 +48,17 @@ frappe.ui.form.on('Contract', {
 	create_invoice: function(frm){
 		frm.call({
             doc: frm.doc,
+			args:{
+				manual_creation: 1
+			},
             method: "create_sales_invoice",
+
         }).then((r) => {
+			var doclist = frappe.model.sync(r.message);
+			console.log(doclist[0].doctype)
+			console.log(doclist[0].name)
+				frappe.set_route("Form", doclist[0].doctype, doclist[0].name);
+			
         });
 	},
 	party_type: function(frm){
